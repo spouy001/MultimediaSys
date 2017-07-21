@@ -1,2 +1,0 @@
-# MultimediaSys
-Multimedia System
