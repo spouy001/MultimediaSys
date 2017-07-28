@@ -4,7 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JFileChooser;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.text.Utilities;
 import java.io.File;
+
 import java.util.Vector;
 
 
@@ -16,12 +20,15 @@ import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 import java.util.Scanner;
 import java.io.IOException;
 
+import javax.swing.text.Utilities;
+import javax.swing.text.BadLocationException;
+
 
 /**
  * Created by Samira Pouyanfar on 5/30/17.
  */
 public class VideoFrame extends JFrame{
-    private JPanel panelVideo;
+    public JPanel panelVideo;
     private JRadioButton RBVideo;
     private JRadioButton RBList;
     private JButton KeyframeButton;
@@ -31,6 +38,7 @@ public class VideoFrame extends JFrame{
     private  JPanel panellist;
     private JButton playButton;
     private  JEditorPane ListEditor;
+    private JScrollPane scrollpaneList;
     private int type=0;
     private String mediaURL;
 
@@ -70,7 +78,7 @@ public class VideoFrame extends JFrame{
             }
         }
     };
-    private VideoFrame() {
+    public VideoFrame() {
 
         Initialize();
         RBVideo.addActionListener(new ActionListener() {
@@ -90,6 +98,52 @@ public class VideoFrame extends JFrame{
             }
         });
         playButton.addActionListener(action);
+
+        ListEditor.addCaretListener(new CaretListener() {
+            @Override
+            public void caretUpdate(CaretEvent e) {
+                try {
+                    //System.out.println("row=" + getRow(e.getDot(), (JEditorPane) e.getSource()));
+                    int start = e.getDot();
+                    int end = e.getMark();
+                    if (start> end) {
+                        int temp = start;
+                        start = end;
+                        end = temp;
+                    }
+                    if (start != end) {
+                        String textpan = ListEditor.getText(start, end - start);
+                        LbPath.setText("Selected file:" + textpan);
+
+                        //if(textpan.endsWith(".mp4")){
+                            playButton.setEnabled(true);
+                            mediaURL = textpan;
+                        //}
+                    }
+                }
+                catch (BadLocationException e1){
+                    e1.printStackTrace();
+                }
+                //System.out.println("col="+getColumn(e.getDot(), (JTextComponent)e.getSource()));
+            }
+        });
+//        ListEditor.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                //super.mouseClicked(e);
+//                try {
+//                    int start = Utilities.getRowStart(ListEditor, e.getYOnScreen() -1);
+//                    int end = Utilities.getRowEnd(ListEditor, e.getYOnScreen()-1);
+//                    String textpan= ListEditor.getText(start, end-start);
+//                    LbPath.setText("New Path:"+textpan);
+//                    System.out.print(textpan);
+//                }
+//                catch (Exception e1){
+//                    System.out.println(e1);
+//                }
+//
+//            }
+//        });
     }
 
 
@@ -113,6 +167,8 @@ public class VideoFrame extends JFrame{
                     try {
                         text = readFile(mediaURL);
                         ListEditor.setText(text);
+                        ListEditor.setEnabled(true);
+                        //ListEditor.setSelectionColor(new Color(1.0f, 1.0f, 1.0f,0.0f));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -123,7 +179,7 @@ public class VideoFrame extends JFrame{
 
             }
 
-            LbPath.setText("Path:"+mediaURL);
+            LbPath.setText("File Path:"+mediaURL);
 
 
 
@@ -132,74 +188,16 @@ public class VideoFrame extends JFrame{
 
         VideoPlayer videoPlayer = new VideoPlayer();
         videoPlayer.play(mediaURL);
-    //Tutorial video=new Tutorial();
-    //video.DecodeAndPlayAudioAndVideo(mediaURL);
 
-
-//        Manager.setHint(Manager.LIGHTWEIGHT_RENDERER, true);
-//        try
-//        {
-//            Player mediaPlayer=Manager.createRealizedPlayer(mediaURL);
-//
-//            Component video= mediaPlayer.getVisualComponent();
-//            Component controls= mediaPlayer.getControlPanelComponent();
-//
-//            if (video!=null)
-//                panelvideoplay.add(video, BorderLayout.CENTER);
-//            if (controls !=null)
-//                panelvideoplay.add(controls, BorderLayout.SOUTH);
-//
-//            mediaPlayer.start();
-//
-//        }
-//        catch (NoPlayerException noPlayerException)
-//        {
-//            System.err.println("No media player found");
-//        }
-//        catch (CannotRealizeException cannotRealizeException)
-//        {
-//            System.err.println("Could not realize media player");
-//        }
-//        catch (IOException iOException)
-//        {
-//            System.err.println("Error reading from the source");
-//        }
-
-
-
-//        Canvas canvas = new Canvas();
-//        panelvideoplay.add(canvas);
-//        panelvideoplay.revalidate();
-//        panelvideoplay.repaint();
-//        canvas.setVisible(true);
-//        MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
-//        player = mediaPlayerFactory.newEmbeddedMediaPlayer();
-//        CanvasVideoSurface videoSurface = mediaPlayerFactory.newVideoSurface(canvas);
-//
-//        player.setVideoSurface(videoSurface);
-//        player.playMedia(mediaURL);
-
-//        player = new EmbeddedMediaPlayerComponent();
-//        Canvas c = new Canvas();
-//        c.setBackground(Color.black);
-//        c.setVisible(true);
-//        MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
-//        CanvasVideoSurface videoSurface = mediaPlayerFactory.newVideoSurface(c);
-//
-//        panelvideoplay.setLayout(new BorderLayout());
-//        panelvideoplay.add(c, BorderLayout.CENTER);
-//        panelvideoplay.revalidate();
-//        panelvideoplay.repaint();
-//        player.setVisible(true);
-//        player.getMediaPlayer().playMedia(mediaURL);
     }
     public void Initialize(){
         ListEditor = new JEditorPane("text/html","No list is selected");
         ListEditor.setAutoscrolls(true);
         panellist.add(new JScrollPane(ListEditor), BorderLayout.CENTER);
         ListEditor.setEnabled(false);
+        scrollpaneList.hide();
     }
-    static String readFile(String path)
+    private static String readFile(String path)
             throws IOException
     {
         Scanner scanner = new Scanner( new File(path) );
@@ -208,6 +206,21 @@ public class VideoFrame extends JFrame{
         return text;
     }
 
+    private static int getRow(int pos, JEditorPane editor) {
+        int rn = (pos==0) ? 1 : 0;
+        try {
+            int offs=pos;
+            while( offs>0) {
+                offs=Utilities.getRowStart(editor, offs)-1;
+                rn++;
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return rn;
+    }
+
+
 
     public static void main(String[] args){
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), "/Applications/VLC.app/Contents/MacOS/lib");
@@ -215,7 +228,7 @@ public class VideoFrame extends JFrame{
         JFrame frame = new JFrame("Video Processing");
         frame.setContentPane(new VideoFrame().panelVideo);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(500,500));
+        frame.setPreferredSize(new Dimension(500,400));
         frame.pack();
         frame.setVisible(true);
 

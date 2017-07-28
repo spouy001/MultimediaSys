@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="libsvm">
+    <CLASSES>
+      <root url="jar:///Applications/weka-3-8-1-oracle-jvm.app/Contents/Java/libsvm.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

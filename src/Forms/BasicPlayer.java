@@ -226,160 +226,166 @@ public class BasicPlayer extends JFrame {
         }
 
         if (container.open(whatToPlay, IContainer.Type.READ, null) < 0) {
-            throw new IllegalArgumentException("could not open file: " + whatToPlay);
+            //throw new IllegalArgumentException("could not open file: " + whatToPlay);
+            JOptionPane.showMessageDialog(new JFrame(), "Could not open file, Please check the path or format of the file", "Dialog", JOptionPane.ERROR_MESSAGE);
+            dispose();
+
+
         }
+        else {
 
-        info.setText(" " + whatToPlay);
-        duration.setText("" + convertTime(container.getDuration()/1000000));
+            info.setText(" " + whatToPlay);
+            duration.setText("" + convertTime(container.getDuration() / 1000000));
 
-        int numStreams = container.getNumStreams();
+            int numStreams = container.getNumStreams();
 
-        int videoStreamId = -1;
-        int audioStreamId = -1;
+            int videoStreamId = -1;
+            int audioStreamId = -1;
 
-        for (int i = 0; i < numStreams; i++) {
-            IStream stream = container.getStream(i);
-            IStreamCoder coder = stream.getStreamCoder();
+            for (int i = 0; i < numStreams; i++) {
+                IStream stream = container.getStream(i);
+                IStreamCoder coder = stream.getStreamCoder();
 
-            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO) {
-                videoStreamId = i;
-                videoCoder = coder;
-            }
-            if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
-                audioStreamId = i;
-                audioCoder = coder;
-            }
-        }
-
-        if (videoStreamId == -1 && audioStreamId == -1) {
-            throw new RuntimeException("could not find audio or video stream in container: " + whatToPlay);
-        }
-
-        if (videoCoder.open() < 0) {
-            throw new RuntimeException("could not open video decoder for container: " + whatToPlay);
-        }
-
-        if(audioCoder != null) {
-            if(audioCoder.open() < 0) {
-                throw new RuntimeException("could not open audio decoder for container: " + whatToPlay);
+                if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO) {
+                    videoStreamId = i;
+                    videoCoder = coder;
+                }
+                if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
+                    audioStreamId = i;
+                    audioCoder = coder;
+                }
             }
 
-            try {
-                openJavaSound(audioCoder);
-            } catch(LineUnavailableException reason) {
-                throw new RuntimeException("unable to open sound device on your system when playing back container: " + whatToPlay);
+            if (videoStreamId == -1 && audioStreamId == -1) {
+                throw new RuntimeException("could not find audio or video stream in container: " + whatToPlay);
             }
-        }
 
-        printInfo();
-
-        printBar();
-
-        IVideoResampler resampler = null;
-        if (videoCoder.getPixelType() != IPixelFormat.Type.BGR24) {
-            resampler = IVideoResampler.make(videoCoder.getWidth(),
-                    videoCoder.getHeight(), IPixelFormat.Type.BGR24,
-                    videoCoder.getWidth(), videoCoder.getHeight(), videoCoder.getPixelType());
-            if (resampler == null) {
-                throw new RuntimeException("could not create color space resampler for: " + whatToPlay);
+            if (videoCoder.open() < 0) {
+                throw new RuntimeException("could not open video decoder for container: " + whatToPlay);
             }
-        }
 
-        packet = IPacket.make();
+            if (audioCoder != null) {
+                if (audioCoder.open() < 0) {
+                    throw new RuntimeException("could not open audio decoder for container: " + whatToPlay);
+                }
 
-        volume.setText("" + jSlider2.getValue()/2 + "%");
-
-        while (!finish && container.readNextPacket(packet) >= 0) {
-            if (isStopped == true) {
                 try {
-                    Thread.sleep(500);
-                    continue;
-                } catch (InterruptedException ex) {
+                    openJavaSound(audioCoder);
+                } catch (LineUnavailableException reason) {
+                    throw new RuntimeException("unable to open sound device on your system when playing back container: " + whatToPlay);
                 }
             }
 
-            if (packet.getStreamIndex() == audioStreamId) {
-                IAudioSamples samples = IAudioSamples.make(1024, audioCoder.getChannels());
+            printInfo();
 
-                int offset = 0;
+            printBar();
 
-                while (offset < packet.getSize()) {
+            IVideoResampler resampler = null;
+            if (videoCoder.getPixelType() != IPixelFormat.Type.BGR24) {
+                resampler = IVideoResampler.make(videoCoder.getWidth(),
+                        videoCoder.getHeight(), IPixelFormat.Type.BGR24,
+                        videoCoder.getWidth(), videoCoder.getHeight(), videoCoder.getPixelType());
+                if (resampler == null) {
+                    throw new RuntimeException("could not create color space resampler for: " + whatToPlay);
+                }
+            }
 
-                    if (isStopped) {
-                        break;
-                    }
+            packet = IPacket.make();
 
-                    int bytesDecoded = audioCoder.decodeAudio(samples, packet, offset);
-                    if (bytesDecoded < 0) {
-                        throw new RuntimeException("got error decoding audio in: " + whatToPlay);
-                    }
-                    offset += bytesDecoded;
+            volume.setText("" + jSlider2.getValue() / 2 + "%");
 
-                    if (samples.isComplete() && (isMute == false)) {
-                        playJavaSound(samples);
+            while (!finish && container.readNextPacket(packet) >= 0) {
+                if (isStopped == true) {
+                    try {
+                        Thread.sleep(500);
+                        continue;
+                    } catch (InterruptedException ex) {
                     }
                 }
-            } else if (packet.getStreamIndex() == videoStreamId) {
 
-                picture = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
+                if (packet.getStreamIndex() == audioStreamId) {
+                    IAudioSamples samples = IAudioSamples.make(1024, audioCoder.getChannels());
 
-                int offset = 0;
+                    int offset = 0;
 
-                while (offset < packet.getSize()) {
+                    while (offset < packet.getSize()) {
 
-                    if (isStopped) {
-                        break;
+                        if (isStopped) {
+                            break;
+                        }
+
+                        int bytesDecoded = audioCoder.decodeAudio(samples, packet, offset);
+                        if (bytesDecoded < 0) {
+                            throw new RuntimeException("got error decoding audio in: " + whatToPlay);
+                        }
+                        offset += bytesDecoded;
+
+                        if (samples.isComplete() && (isMute == false)) {
+                            playJavaSound(samples);
+                        }
                     }
+                } else if (packet.getStreamIndex() == videoStreamId) {
 
-                    int bytesDecoded = videoCoder.decodeVideo(picture, packet, offset);
+                    picture = IVideoPicture.make(videoCoder.getPixelType(), videoCoder.getWidth(), videoCoder.getHeight());
 
-                    if (bytesDecoded < 0) {
-                        //skipAllPacket -> Seek to...
-                        break;
-                    }
+                    int offset = 0;
 
-                    offset += bytesDecoded;
+                    while (offset < packet.getSize()) {
 
-                    if (picture.isComplete()) {
-                        IVideoPicture newPic = picture;
+                        if (isStopped) {
+                            break;
+                        }
 
-                        if (resampler != null) {
-                            // we must resample
-                            newPic = IVideoPicture.make(resampler.getOutputPixelFormat(), picture.getWidth(), picture.getHeight());
-                            if (resampler.resample(newPic, picture) < 0) {
-                                throw new RuntimeException("could not resample video from: " + whatToPlay);
+                        int bytesDecoded = videoCoder.decodeVideo(picture, packet, offset);
+
+                        if (bytesDecoded < 0) {
+                            //skipAllPacket -> Seek to...
+                            break;
+                        }
+
+                        offset += bytesDecoded;
+
+                        if (picture.isComplete()) {
+                            IVideoPicture newPic = picture;
+
+                            if (resampler != null) {
+                                // we must resample
+                                newPic = IVideoPicture.make(resampler.getOutputPixelFormat(), picture.getWidth(), picture.getHeight());
+                                if (resampler.resample(newPic, picture) < 0) {
+                                    throw new RuntimeException("could not resample video from: " + whatToPlay);
+                                }
                             }
+
+                            if (newPic.getPixelType() != IPixelFormat.Type.BGR24) {
+                                throw new RuntimeException("could not decode video as BGR 24 bit data in: " + whatToPlay);
+                            }
+
+                            currentTimestamp = picture.getTimeStamp();
+
+                            delay();
+
+                            updatePanel(Utils.videoPictureToImage(newPic));
+                            updateTimeline();
                         }
-
-                        if (newPic.getPixelType() != IPixelFormat.Type.BGR24) {
-                            throw new RuntimeException("could not decode video as BGR 24 bit data in: " + whatToPlay);
-                        }
-
-                        currentTimestamp = picture.getTimeStamp();
-
-                        delay();
-
-                        updatePanel(Utils.videoPictureToImage(newPic));
-                        updateTimeline();
                     }
+                } else {
+                    do {
+                    } while (false);
                 }
-            } else {
-                do {
-                } while (false);
             }
-        }
 
-        if (videoCoder != null) {
-            videoCoder.close();
-            videoCoder = null;
-        }
-        if (audioCoder != null) {
-            audioCoder.close();
-            audioCoder = null;
-        }
-        if (container != null) {
-            container.close();
-            container = null;
+            if (videoCoder != null) {
+                videoCoder.close();
+                videoCoder = null;
+            }
+            if (audioCoder != null) {
+                audioCoder.close();
+                audioCoder = null;
+            }
+            if (container != null) {
+                container.close();
+                container = null;
+            }
         }
     }
 

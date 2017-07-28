@@ -1,0 +1,42 @@
+<component name="libraryTable">
+  <library name="com.github.fracpete:screencast4j-weka-package:2016.5.8" type="repository">
+    <properties maven-id="com.github.fracpete:screencast4j-weka-package:2016.5.8" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fracpete/screencast4j-weka-package/2016.5.8/screencast4j-weka-package-2016.5.8.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nz/ac/waikato/cms/weka/weka-dev/3.9.1/weka-dev-3.9.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b/2015.03.26/java-cup-11b-2015.03.26.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nz/ac/waikato/cms/weka/thirdparty/java-cup-11b-runtime/2015.03.26/java-cup-11b-runtime-2015.03.26.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4.jar!/" />
+      <root url="file://$MAVEN_REPOSITORY$/com/github/fommil/netlib/all/1.1.2/all-1.1.2.pom" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/core/1.1/core-1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/jniloader/1.1/jniloader-1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-natives.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fracpete/screencast4j/0.1.4/screencast4j-0.1.4.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/fracpete/jfilechooser-bookmarks/0.1.2/jfilechooser-bookmarks-0.1.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/jidesoft/jide-oss/3.6.11/jide-oss-3.6.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/sarxos/webcam-capture/0.3.9/webcam-capture-0.3.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/jhlabs/filters/2.0.235-1/filters-2.0.235-1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.6.2/bridj-0.6.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/android/tools/dx/1.7/dx-1.7.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

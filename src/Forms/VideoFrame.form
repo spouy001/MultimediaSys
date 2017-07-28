@@ -53,6 +53,7 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="c8513"/>
               <text value="Path:"/>
             </properties>
           </component>
@@ -63,12 +64,19 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="c8513" class="javax.swing.JEditorPane" binding="ListEditor">
+              <scrollpane id="eb81" binding="scrollpaneList">
                 <constraints border-constraint="West"/>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="c8513" class="javax.swing.JEditorPane" binding="ListEditor">
+                    <constraints/>
+                    <properties>
+                      <text value=""/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
             </children>
           </grid>
         </children>
