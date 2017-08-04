@@ -140,7 +140,7 @@ public class MainForm extends JFrame {
     //Image Icon
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        ImageIcon myicon = new ImageIcon("multimedia-icon.jpg");
+        ImageIcon myicon = new ImageIcon("img/multimedia-icon.jpg");
         Image img = myicon.getImage();
         Image newimg = img.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
         ImageIcon newicon = new ImageIcon(newimg);

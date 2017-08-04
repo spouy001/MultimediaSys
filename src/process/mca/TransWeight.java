@@ -423,7 +423,7 @@ public class TransWeight {
         //System.out.println("recall-p = " + recall);
         double F1 = 2 * precision * recall / (precision + recall);
         //System.out.println("F1-p = " + F1);
-        Result = "*******Result Summary of positive class******" + '\n';
+        Result = "========= Summary of negative class =========" + '\n';
         Result += "TP =" + TN + ", FP =" + FN + ", FN ="+ FP + '\n';
         Result += "Percision ="+ precision + "\n";
         Result += "Recall ="+ recall+ "\n";
@@ -456,11 +456,11 @@ public class TransWeight {
         //System.out.println("F1 = " + F1);
         //System.out.println("F1-p = " + F1);
 
-        Result += "*****Result Summary of negative class*****" + '\n';
+        Result += "========= Summary of negative class =========" + '\n';
         Result += "TP =" + TP + ", FP =" + FP + ", FN ="+ FN + "\n";
         Result += "Percision ="+ precision + "\n";
         Result += "Recall ="+ recall+ "\n";
-        Result += "F1 ="+ F1+ "\n";
+        Result += "F1 ="+ F1+ "\n\n";
 
         return Result;
     }

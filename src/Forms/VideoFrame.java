@@ -8,20 +8,25 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.Utilities;
 import java.io.File;
+import CameraTakeDetection.CameraTakeDetectionRun;
 
-import java.util.Vector;
+import java.util.*;
+import  java.util.List;
 
 
+import CameraTakeDetection.CameraTakeDetectionRun;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 
+import org.opencv.core.Core;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
-import java.util.Scanner;
+
 import java.io.IOException;
 
 import javax.swing.text.Utilities;
 import javax.swing.text.BadLocationException;
+import org.opencv.core.Mat;
 
 
 /**
@@ -36,11 +41,13 @@ public class VideoFrame extends JFrame{
     private JPanel PanelInfo;
     private JLabel LbPath;
     private  JPanel panellist;
-    private JButton playButton;
+    //private JButton playButton;
     private  JEditorPane ListEditor;
     private JScrollPane scrollpaneList;
+    public JLabel LBPlay;
     private int type=0;
     private String mediaURL;
+    List<Mat> images;
 
 
 
@@ -78,6 +85,7 @@ public class VideoFrame extends JFrame{
             }
         }
     };
+
     public VideoFrame() {
 
         Initialize();
@@ -97,7 +105,8 @@ public class VideoFrame extends JFrame{
 
             }
         });
-        playButton.addActionListener(action);
+        //playButton.addActionListener(action);
+
 
         ListEditor.addCaretListener(new CaretListener() {
             @Override
@@ -116,7 +125,7 @@ public class VideoFrame extends JFrame{
                         LbPath.setText("Selected file:" + textpan);
 
                         //if(textpan.endsWith(".mp4")){
-                            playButton.setEnabled(true);
+                            LBPlay.setEnabled(true);
                             mediaURL = textpan;
                         //}
                     }
@@ -144,6 +153,82 @@ public class VideoFrame extends JFrame{
 //
 //            }
 //        });
+        ShotBoundryButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                try {
+                    //List<Mat> images = new ArrayList<Mat>();
+                    images = CameraTakeDetectionRun.processVideo(mediaURL,  "output/keyframes/");
+                    KeyframeButton.setEnabled(true);
+                    //for (int i=0; i<10; i++)
+                        //CameraTakeDetectionRun.showResult(images.get(i));
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        KeyframeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = new JFrame("Display KeyFrames");
+                frame.setContentPane(new KeyFrames(images).mainPanel);
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.setPreferredSize(new Dimension(800,900));
+                frame.pack();
+                frame.setVisible(true);
+            }
+        });
+        LBPlay.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+                    LBPlay.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+
+            }
+        });
+
+
+
+
+
+
+        LBPlay.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (LBPlay.isEnabled())
+                    new Thread(new VideoRunnable()).start();
+
+            }
+            class VideoRunnable implements Runnable {
+                @Override
+                public void run() {
+
+                    BasicPlayer player = new BasicPlayer();
+                    WindowListener exitListener=new WindowAdapter() {
+
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                            int confirm = JOptionPane.showOptionDialog(player,
+                                    "Are You Sure to Close this Video?",
+                                    "Exit Confirmation", JOptionPane.YES_NO_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE, null, null, null);
+                            if (confirm == 0) {
+                                player.stop();
+                                player.dispose();
+
+                            }
+                        }
+                    };
+                    player.addWindowListener(exitListener);
+                    //player.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                    player.setVisible(true);
+                    player.start(mediaURL);
+
+                }
+            }
+        });
     }
 
 
@@ -158,9 +243,9 @@ public class VideoFrame extends JFrame{
             //File selectedFile = fileChooser.getSelectedFile();
             mediaURL = fileChooser.getSelectedFile().getAbsolutePath();
             if (type == 1) {
-                    playButton.setEnabled(true);
+                    LBPlay.setEnabled(true);
                     ShotBoundryButton.setEnabled(true);
-                    KeyframeButton.setEnabled(true);
+                    //KeyframeButton.setEnabled(true);
             }
             if (type == 2) {
                     String text;
@@ -172,9 +257,9 @@ public class VideoFrame extends JFrame{
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    playButton.setEnabled(false);
+                    LBPlay.setEnabled(false);
                     ShotBoundryButton.setEnabled(true);
-                    KeyframeButton.setEnabled(true);
+                    //KeyframeButton.setEnabled(true);
                 }
 
             }
@@ -196,6 +281,13 @@ public class VideoFrame extends JFrame{
         panellist.add(new JScrollPane(ListEditor), BorderLayout.CENTER);
         ListEditor.setEnabled(false);
         scrollpaneList.hide();
+
+        ImageIcon temp = new ImageIcon("img/play.png");
+        Image img = temp.getImage();
+        Image ply = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        ImageIcon newicon = new ImageIcon(ply);
+        LBPlay.setIcon(newicon);
+        LBPlay.setEnabled(false);
     }
     private static String readFile(String path)
             throws IOException

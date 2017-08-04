@@ -186,7 +186,7 @@ public class BasicPlayer extends JFrame {
 
 
     // public void SetPath(String path) {whatToPlay=path;}
-    public void seekTo(int percent) {
+    public void seekTo_old(int percent) {
 
         if(container == null) {
             System.out.println("NULL CONTAINER");
@@ -200,10 +200,31 @@ public class BasicPlayer extends JFrame {
 
         for(int i=0;i < container.getNumStreams();i++) {
             container.seekKeyFrame(i, seekByte, seekByte, seekByte, IContainer.SEEK_FLAG_BYTE);
-            //container.seekKeyFrame(0, 0, seekByte, container.getDuration(), IContainer.SEEK_FLAG_FRAME);
+            //container.seekKeyFrame(i, 0, seekByte, container.getDuration(), IContainer.SEEK_FLAG_BYTE);
         }
 
         firstTimestampInStream = Global.NO_PTS;
+    }
+    public void seekTo(int percent) {
+
+        if (container == null) {
+            System.out.println("NULL CONTAINER");
+            return;
+        }
+        int jumpToThisSecond = 65;
+        long videoDuration = container.getDuration() == Global.NO_PTS ? 0
+                : container.getDuration() / 1000;
+        for (int i = 0; i < container.getNumStreams(); i++) {
+            IStream stream = container.getStream(i);
+            IStreamCoder coder = stream.getStreamCoder();
+            //long seekTime = (((container.getDuration()/videoCoder.getFrameRate().getNumerator())*percent)/100);
+            //double frameRate = coder.getFrameRate().getDouble();
+            double frameRate = 25;
+
+            long jumbTo = (long) (((videoDuration / 1000) * frameRate) * jumpToThisSecond);
+            container.seekKeyFrame(0, 0, jumbTo, container.getDuration(),
+                    IContainer.SEEK_FLAG_FRAME);
+        }
     }
 
     /**
@@ -235,7 +256,7 @@ public class BasicPlayer extends JFrame {
         else {
 
             info.setText(" " + whatToPlay);
-            duration.setText("" + convertTime(container.getDuration() / 1000000));
+            //duration.setText("" + convertTime(container.getDuration() / 1000000));
 
             int numStreams = container.getNumStreams();
 
@@ -460,7 +481,8 @@ public class BasicPlayer extends JFrame {
             return;
         }
 
-        duration.setText(picture.getFormattedTimeStamp() + " [" + (picture.getTimeStamp()/1000) + "] "+ convertTime(container.getDuration()/1000));
+        //duration.setText(picture.getFormattedTimeStamp() + " [" + (picture.getTimeStamp()/1000) + "] "+ convertTime(container.getDuration()/1000));
+        duration.setText(picture.getFormattedTimeStamp() + " [" + (picture.getTimeStamp()/1000) + "] ");
     }
 
     private void updatePanel(BufferedImage javaImage) {

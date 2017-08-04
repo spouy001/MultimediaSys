@@ -378,7 +378,9 @@ public class ExtractCEDD {
 		//ArrayList<double[]> output=cedd("/Volumes/spouy001/mitch-b/dmis-research/Haiman/ACM_MM_Purdue_videos/resized_4403_samira/", "/Volumes/spouy001/mitch-b/dmis-research/Haiman/ACM_MM_Purdue_videos/image_list2.csv");
 		ArrayList<double[]> output=extractAll("/Volumes/spouy001/mitch-b/dmis-research/Haiman/ACM_MM_Purdue_videos/resized_4403_samira/", "/Volumes/spouy001/mitch-b/dmis-research/Haiman/ACM_MM_Purdue_videos/image_list2.csv");
 		System.out.println("Done");
-
+		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		//Mat mat = Mat.eye(3, 3, CvType.CV_8UC1);
+		//System.out.println("mat = " + mat.dump());
 
 		/*String outlog = "/Volumes/spouy001/MyResearch/CEDD/20170524_CEDD_log.txt";
 

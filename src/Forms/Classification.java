@@ -6,15 +6,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
+import process.Crossvalidation;
 import process.RunClassifier;
+import weka.core.Attribute;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils;
+import weka.filters.UnsupervisedFilter;
 import weka.filters.unsupervised.attribute.Remove;
+import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.Filter;
 import process.mca.*;
 
@@ -26,10 +34,9 @@ public class Classification {
 
     private JPanel panel1;
     public JPanel mainPanel;
-    private JRadioButton RB10fold;
-    private JRadioButton RB3fold;
+    private JRadioButton RBfolds;
     private JComboBox comboBoxClassifiers;
-    private JRadioButton RB1fold;
+    private JRadioButton RBPercentage;
     private JButton runButton;
     private JButton openAFileButton;
     private JTextField txtPath;
@@ -46,12 +53,15 @@ public class Classification {
     private JTextPane textPane1;
     private JEditorPane editorPane1;
     private JTextArea textArea1;
+    private JTextField textFieldFolds;
+    private JTextField textFieldPercentage;
+    private JButton SaveARFFButton;
     private JPanel panelTest;
     private JTextPane textPaneSummary;
     private String featureURL;
     private Instances inputData;
-    String inTrainFile="/Volumes/spouy001/mitch-a/dmis-research/Samira/soccer_goal-detection/minchen_features/group16/train1.arff";
-    String inTestFile="/Volumes/spouy001/mitch-a/dmis-research/Samira/soccer_goal-detection/minchen_features/group16/test1.arff";
+    String inTrainFile="/Volumes/homes/mitch-a/dmis-research/Samira/soccer_goal-detection/minchen_features/group16/train1.arff";
+    String inTestFile="/Volumes/homes/mitch-a/dmis-research/Samira/soccer_goal-detection/minchen_features/group16/test1.arff";
     //private String[] classifierStrings = { "MCA", "SVM", "J48", "RandomForest", "NaiveBayes", "MLP", "KNN", "AdaBoost", "Bagging"};
 
 
@@ -68,6 +78,7 @@ public class Classification {
                     // user selects a csv file
                     featureURL = fileChooser.getSelectedFile().getAbsolutePath();
                     txtPath.setText(featureURL);
+                    //textFieldSummary.setText(Summary(inTrainFile));
                     textFieldSummary.setText(Summary(featureURL));
                     //LbSummary.setText(Summary(featureURL));
                 }
@@ -97,83 +108,106 @@ public class Classification {
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String classifier= comboBoxClassifiers.getSelectedItem().toString();
-                RunClassifier cls = new RunClassifier();
-                String EvaluationRes= "No result";
-                try {
+                textArea1.setText("");
+                int fold = 0;
+                int percentage = 0;
 
-                    Instances inTrain = ConverterUtils.DataSource.read(inTrainFile);
-                    inTrain.setClassIndex(inTrain.numAttributes() - 1);
-                    Instances inTest = ConverterUtils.DataSource.read(inTestFile);
-                    inTest.setClassIndex(inTest.numAttributes() - 1);
+                    if (comboBoxClassifiers.getSelectedItem() != null) {
+                        String classifier = comboBoxClassifiers.getSelectedItem().toString();
+                        if (RBfolds.isSelected()) {
+                            try {
+                                fold = Integer.parseInt(textFieldFolds.getText());
+                                if (fold < 2 || fold > 20)
+                                    JOptionPane.showMessageDialog(new JFrame(), "Wrong fold value (A number between 2 to 20)", "Dialog", JOptionPane.ERROR_MESSAGE);
 
-                    //cls.useJ48(inTrain, inTest, trainResultFile, testResultFile);
-                    //cls.useIG(inTrain);
+                                else {
+                                    Crossvalidation CV = new Crossvalidation(fold);
+                                    try {
+                                        CV.crossValidateModel(inputData, fold, new Random(100));
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
+                                    for (int i = 0; i < fold; i++) {
+                                        textArea1.append("*********** Results of Fold:" + (i + 1) + " *******************\n");
+                                        runModel(CV.train[i], CV.test[i], classifier);
+
+                                    }
+                                }
+                            } catch (NumberFormatException e1) {
+                                JOptionPane.showMessageDialog(new JFrame(), "Wrong fold value (A number between 2 to 20)", "Dialog", JOptionPane.ERROR_MESSAGE);
+                            }
 
 
-                    switch (classifier) {
-                        case "MCA": {
-                            System.out.println("Run MCA");
-                            EvaluationRes = cls.runMCA(inTrain, inTest, true);
-                            break;
-                        }
-                        case ("SVM"): {
-                            System.out.println("Run SVM");
-                            EvaluationRes = cls.runSMO(inTrain, inTest);
-                            break;
-                        }
-                        case "J48": {
-                            System.out.println("Run J48");
-                            EvaluationRes = cls.runJ48(inTrain, inTest);
-                            break;
-                        }
-                        case "RandomForest": {
-                            System.out.println("Run RandomForest");
-                            EvaluationRes = cls.runRandomForest(inTrain, inTest);
-                            break;
-                        }
-                        case "NaiveBayes": {
-                            System.out.println("Run NaiveBayes");
-                            EvaluationRes = cls.runNaiveBayes(inTrain, inTest);
-                            break;
-                        }
-                        case "KNN": {
-                            System.out.println("Run KNN");
-                            EvaluationRes = cls.runKNN(inTrain, inTest,3);
-                            break;
-                        }
-                        case "MLP": {
-                            System.out.println("Run MLP");
-                            EvaluationRes = cls.runMLP(inTrain, inTest);
-                            break;
-                        }
-                        case "AdaBoost": {
-                            System.out.println("Run AdaBoost");
-                            EvaluationRes = cls.runAdaBoost(inTrain, inTest);
-                            break;
-                        }
-                        case "Bagging": {
-                            System.out.println("Run Bagging");
-                            EvaluationRes = cls.runBagging(inTrain, inTest);
-                            break;
-                        }
-                        case "Logistic": {
-                            System.out.println("Run Logistic");
-                            EvaluationRes = cls.runLogistic(inTrain, inTest);
-                            break;
-                        }
-                        case "BayesNet": {
-                            System.out.println("Run Logistic");
-                            EvaluationRes = cls.runBayesNet(inTrain, inTest);
-                            break;
+                        } else if (RBPercentage.isSelected()) {
+                            try {
+                                percentage = Integer.parseInt(textFieldPercentage.getText());
+                                if (percentage <= 0 || percentage > 100)
+                                    JOptionPane.showMessageDialog(new JFrame(), "Wrong percentage (A number between 1 to 100)", "Dialog", JOptionPane.ERROR_MESSAGE);
+                                else {
+                                    Crossvalidation CV = new Crossvalidation(1);
+                                    try {
+                                        CV.SplitData(inputData, percentage, new Random(100));
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
+
+                                    runModel(CV.train[0], CV.test[0], classifier);
+                                }
+                            } catch (NumberFormatException e1) {
+                                JOptionPane.showMessageDialog(new JFrame(), "Wrong percentage (A number between 1 to 100)", "Dialog", JOptionPane.ERROR_MESSAGE);
+                            }
+
                         }
                     }
-                }catch (Exception e1) {
+                else
+
+                    JOptionPane.showMessageDialog(new JFrame(), "Please select a classifier", "Dialog", JOptionPane.ERROR_MESSAGE);
+
+
+            }
+        });
+        RBPercentage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textFieldPercentage.setEnabled(true);
+                textFieldPercentage.setEditable(true);
+                textFieldPercentage.setText("");
+                textFieldFolds.setEditable(false);
+                textFieldFolds.setEnabled(false);
+                textFieldFolds.setText("number of folds");
+                //textFieldPercentage.setEditable(true);
+
+            }
+        });
+
+
+
+
+        RBfolds.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textFieldFolds.setEnabled(true);
+                textFieldFolds.setEditable(true);
+                textFieldFolds.setText("");
+                textFieldPercentage.setEditable(false);
+                textFieldPercentage.setEnabled(false);
+                textFieldPercentage.setText("percentage (e.g. 80)");
+            }
+        });
+        SaveARFFButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArffSaver saver = new ArffSaver();
+                saver.setInstances(inputData);
+                try {
+                    saver.setFile(new File("output/"+inputData.relationName()+".arff"));
+                    //saver.setDestination(new File(arffFile)); //no need after WEKA version 3.5.3
+                    saver.writeBatch();
+                } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-                textArea1.setText(EvaluationRes);
-            }
 
+            }
         });
     }
     private String Summary(String fpath){
@@ -187,10 +221,15 @@ public class Classification {
             loader.setSource(new File(fpath));
             inputData = loader.getDataSet();
 
+
+
             // Make the last attribute be the class
             numInstance = inputData.numInstances();
             numFeat = inputData.numAttributes();
             inputData.setClassIndex(numFeat-1);
+
+            inputData = changeToNominal(inputData,inputData.classIndex()+1);
+            numFeat = inputData.numAttributes();
             numClass = inputData.numDistinctValues(numFeat-1);
             inputData = RemoveAtt(inputData,1);
             System.out.println("\nDataset:\n");
@@ -201,6 +240,7 @@ public class Classification {
         }
         return "Number of Instances: "+Integer.toString(numInstance)+"   Number of Features:  "+Integer.toString(numFeat)+"   Number of Classes:  "+Integer.toString(numClass);
     }
+
     private Instances RemoveAtt(Instances ins, int index){
 
         String[] options = new String[2];
@@ -211,6 +251,25 @@ public class Classification {
             remove.setOptions(options);                           // set options
             remove.setInputFormat(ins);                          // inform filter about dataset **AFTER** setting options
             Instances newIns = Filter.useFilter(ins, remove);
+            return newIns;
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ins;
+    }
+    private Instances changeToNominal(Instances ins, int index){
+        NumericToNominal convert= new NumericToNominal();
+        String[] options= new String[2];
+        options[0]="-R";
+        options[1]=Integer.toString(index);;  //range of variables to make nominal
+
+        try {
+            convert.setOptions(options);
+            convert.setInputFormat(ins);
+
+
+            Instances newIns = Filter.useFilter(ins, convert);
             return newIns;
         } catch (Exception e)
         {
@@ -246,6 +305,7 @@ public class Classification {
         comboBoxClassifiers.setSelectedItem(null);
 
 
+
         //editorPane1 = new JEditorPane("text/html","No file is added");
         //editorPane1.setAutoscrolls(true);
         //jpanelTest.add(new JScrollPane(editorPane1), BorderLayout.CENTER);
@@ -271,6 +331,85 @@ public class Classification {
         String text = scanner.useDelimiter("\r\n").next();
         scanner.close(); // Put this call in a finally block
         return text;
+    }
+
+    private  void runModel(Instances inTrain, Instances inTest, String classifier){
+        RunClassifier cls = new RunClassifier();
+        String EvaluationRes= "No result";
+        try {
+
+            //Instances inTrain = ConverterUtils.DataSource.read(inTrainFile);
+            //inTrain.setClassIndex(inTrain.numAttributes() - 1);
+            //Instances inTest = ConverterUtils.DataSource.read(inTestFile);
+            //inTest.setClassIndex(inTest.numAttributes() - 1);
+
+            //cls.useJ48(inTrain, inTest, trainResultFile, testResultFile);
+            //cls.useIG(inTrain);
+
+
+            switch (classifier) {
+                case "MCA": {
+                    System.out.println("Run MCA");
+                    EvaluationRes = cls.runMCA(inTrain, inTest, true);
+                    break;
+                }
+                case ("SVM"): {
+                    System.out.println("Run SVM");
+                    EvaluationRes = cls.runSMO(inTrain, inTest);
+                    break;
+                }
+                case "J48": {
+                    System.out.println("Run J48");
+                    EvaluationRes = cls.runJ48(inTrain, inTest);
+                    break;
+                }
+                case "RandomForest": {
+                    System.out.println("Run RandomForest");
+                    EvaluationRes = cls.runRandomForest(inTrain, inTest);
+                    break;
+                }
+                case "NaiveBayes": {
+                    System.out.println("Run NaiveBayes");
+                    EvaluationRes = cls.runNaiveBayes(inTrain, inTest);
+                    break;
+                }
+                case "KNN": {
+                    System.out.println("Run KNN");
+                    EvaluationRes = cls.runKNN(inTrain, inTest,3);
+                    break;
+                }
+                case "MLP": {
+                    System.out.println("Run MLP");
+                    EvaluationRes = cls.runMLP(inTrain, inTest);
+                    break;
+                }
+                case "AdaBoost": {
+                    System.out.println("Run AdaBoost");
+                    EvaluationRes = cls.runAdaBoost(inTrain, inTest);
+                    break;
+                }
+                case "Bagging": {
+                    System.out.println("Run Bagging");
+                    EvaluationRes = cls.runBagging(inTrain, inTest);
+                    break;
+                }
+                case "Logistic": {
+                    System.out.println("Run Logistic");
+                    EvaluationRes = cls.runLogistic(inTrain, inTest);
+                    break;
+                }
+                case "BayesNet": {
+                    System.out.println("Run Logistic");
+                    EvaluationRes = cls.runBayesNet(inTrain, inTest);
+                    break;
+                }
+            }
+        }catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        textArea1.append(EvaluationRes);
+        //textArea1.setText(EvaluationRes);
+        textArea1.setEnabled(true);
     }
     public static void main(String[] args){
 

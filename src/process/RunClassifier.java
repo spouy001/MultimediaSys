@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Random;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -79,6 +80,7 @@ public class RunClassifier {
             System.out.println(eval.toMatrixString());
             res = eval.toClassDetailsString();
             res += '\n'+ eval.toMatrixString();
+            //eval.crossValidateModel(naive, train, 3, new Random(1000));
 
 
         } catch (Exception e) {
@@ -439,7 +441,7 @@ public class RunClassifier {
         //System.out.println("recall-p = " + recall);
         double F1 = 2 * precision * recall / (precision + recall);
         //System.out.println("F1-p = " + F1);
-        Result = "*******Result Summary of positive class******" + '\n';
+        Result = "========= Summary of positive class =========" + '\n';
         Result += "TP =" + TN + ", FP =" + FN + ", FN ="+ FP + '\n';
         Result += "Percision ="+ precision + "\n";
         Result += "Recall ="+ recall+ "\n";
@@ -472,7 +474,7 @@ public class RunClassifier {
         //System.out.println("F1 = " + F1);
         //System.out.println("F1-p = " + F1);
 
-        Result += "*****Result Summary of negative class*****" + '\n';
+        Result += "========= Summary of negative class =========" + '\n';
         Result += "TP =" + TP + ", FP =" + FP + ", FN ="+ FN + "\n";
         Result += "Percision ="+ precision + "\n";
         Result += "Recall ="+ recall+ "\n";
